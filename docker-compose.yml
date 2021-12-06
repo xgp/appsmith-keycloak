@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+
+  appsmith:
+    image: appsmith/appsmith-keycloak
+    container_name: appsmith
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9001:9001"
+      - "8180:8180"
+    environment:
+      DB: h2
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      PROXY_ADDRESS_FORWARDING: "true"
+    volumes:
+      - ./stacks:/appsmith-stacks
+
+  auto_update:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Update check interval in seconds.
+    command: --interval 300 --label-enable --cleanup
