@@ -1,0 +1,5 @@
+
+
+
+## Notes
+- not possible to get keycloak logs into the "stacks" volume, as that dir gets setup by the appsmith entrypoint

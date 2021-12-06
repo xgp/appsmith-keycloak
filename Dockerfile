@@ -15,12 +15,16 @@ RUN (cd /tmp/keycloak && \
 
 RUN mv /tmp/keycloak/keycloak.x* /opt/keycloak
 
+
 FROM index.docker.io/appsmith/appsmith-ce
 
+# copy keycloak binary into place
 COPY --from=build-env /opt/keycloak /opt/keycloak
 
+# add keycloak supervisord config
 COPY ./supervisord/keycloak.conf /opt/appsmith/templates/supervisord/application_process/
 
+# update the nginx conf templates with keycloak ingress
 RUN sed -e '/^server {/,/^}/{/^}/i\  location /auth {\n    proxy_pass http://localhost:8180;\n  }' -e '}' /opt/appsmith/templates/nginx-app-http.conf.template.sh > /opt/appsmith/templates/nginx-app-http.conf.template.sh_new && \
   mv /opt/appsmith/templates/nginx-app-http.conf.template.sh_new /opt/appsmith/templates/nginx-app-http.conf.template.sh && \
   sed -e '/^server {/,/^}/{/^}/i\  location /auth {\n    proxy_pass http://localhost:8180;\n  }' -e '}' /opt/appsmith/templates/nginx-app-https.conf.template.sh > /opt/appsmith/templates/nginx-app-https.conf.template.sh_new && \
@@ -29,6 +33,8 @@ RUN sed -e '/^server {/,/^}/{/^}/i\  location /auth {\n    proxy_pass http://loc
 
 # TODO add phasetwo ear, jars, theme and cli startup scripts
 
+# Temporarily expose keycloak directly for debugging
 EXPOSE 8180
 
+# no entrypoint required. supervisord takes care of this
 #ENTRYPOINT [ "/opt/keycloak/bin/kc.sh" ]
